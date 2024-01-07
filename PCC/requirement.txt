@@ -1,0 +1,6 @@
+requests
+fastapi
+passlib
+uvicorn
+pyjwt
+typing
