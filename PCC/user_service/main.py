@@ -87,7 +87,7 @@ def read_user(username: str, db: Session = Depends(get_db)):
     return User(username=user.username, email=user.email, user_type=user.user_type)
 
 @app.post("/login/")
-async def login(username: str, password: str, db: Session = Depends(SessionLocal)):
+async def login(username: str, password: str, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.username == username).first()
     
     if user and verify_password(password, user.hashed_password):
