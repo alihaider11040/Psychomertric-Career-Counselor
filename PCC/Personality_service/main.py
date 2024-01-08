@@ -30,7 +30,7 @@ personality_data = {
     "INTJ": {
         "Personality Attributes": "Introvert, Intuition, Thinking, Judging",
         "Traits": "Prefer working alone, perceive information intuitively, gather logical and objective information, preplan their possessions, like to control their space by themselves, able to understand and evaluate complex information. Architecting, Science, Engineering, Doctor, Dentist, Teacher, Lawyer, and Judge",
-        "Suitable Career": "Architecting, Science, Engineering, Doctor, Dentist, Teacher, Lawyer, and Judge",
+        "Suitable Career": "Architecting, Science, Engineering, Doctor, Dentist, Teacher, Lawyer, Judge",
     },
     "ISTP": {
         "Personality Attributes": "Introvert, Sensing, Thinking, Perceiving",
@@ -106,12 +106,12 @@ for personality_type, entry in personality_data.items():
 print(unique_professions)
 # Order professions by count in ascending order for a given personality type
 def order_professions_by_count(personality_type):
-    if personality_type.upper() in unique_professions:
-        sorted_professions = sorted(unique_professions.items(), key=lambda x: x[1])
-        return dict(sorted_professions)
+    if personality_type.upper() in personality_data:
+        careers = [career.strip() for career in personality_data[personality_type.upper()].get("Suitable Career", "").split(",")]
+        sorted_careers = sorted(careers, key=lambda x: unique_professions[x])
+        return sorted_careers
     else:
-        return {}
-
+        return []
 # FastAPI endpoint to get information based on personality type
 @app.get("/get_personality_info/{personality}")
 async def get_personality_info(personality: str):
