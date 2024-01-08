@@ -48,7 +48,7 @@ class User(BaseModel):
     user_type: str
 
 class LoginResponse(BaseModel):
-    username: str
+   
     email: str
     user_type: str  # Adjust this based on your UserDB model
 # Password hashing
@@ -97,7 +97,7 @@ async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.email == login_request.email).first()
     
     if user and verify_password(login_request.password, user.hashed_password):
-        return LoginResponse(username=user.username, email=user.email, user_type=user.user_type)
+        return LoginResponse( email=user.email, user_type=user.user_type)
     
     raise HTTPException(status_code=401, detail="Invalid credentials")
 # Update a specific user by username
