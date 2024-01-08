@@ -1,4 +1,5 @@
 from fastapi import FastAPI, HTTPException, Depends
+from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import create_engine, Column, String, Integer
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import Session, sessionmaker
@@ -7,7 +8,7 @@ from typing import List
 from passlib.context import CryptContext  # for password hashing
 
 # SQLite Database URL
-DATABASE_URL = "sqlite:///./user.db"
+DATABASE_URL = "sqlite:///./USER.db"
 
 # SQLAlchemy Models
 Base = declarative_base()
@@ -23,6 +24,11 @@ class UserDB(Base):
 # Create SQLite engine
 engine = create_engine(DATABASE_URL)
 Base.metadata.create_all(bind=engine)
+
+# Enable CORS
+origins = ["*"]  # You can replace "*" with the specific origins you want to allow
+
+
 
 # Dependency to get the database session
 def get_db():
@@ -43,7 +49,13 @@ class User(BaseModel):
 
 # Password hashing
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # CRUD operations
 # Create a new user
 @app.post("/users/", response_model=User)

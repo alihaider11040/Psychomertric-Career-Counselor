@@ -4,3 +4,4 @@ passlib
 uvicorn
 pyjwt
 typing
+bcrypt
