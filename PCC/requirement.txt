@@ -5,3 +5,5 @@ uvicorn
 pyjwt
 typing
 bcrypt
+sqlalchemy
+

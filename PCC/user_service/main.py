@@ -49,6 +49,7 @@ class User(BaseModel):
 
 # Password hashing
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -69,6 +70,9 @@ def create_user(user: User, db: Session = Depends(get_db)):
     db.refresh(db_user)
     return user
 
+# Function to verify the provided password against the stored hashed password
+def verify_password(plain_password, hashed_password):
+    return password_context.verify(plain_password, hashed_password)
 # Read all users
 @app.get("/users/", response_model=List[User])
 def read_users(db: Session = Depends(get_db)):
@@ -81,6 +85,15 @@ def read_user(username: str, db: Session = Depends(get_db)):
     if user is None:
         raise HTTPException(status_code=404, detail="User not found")
     return User(username=user.username, email=user.email, user_type=user.user_type)
+
+@app.post("/login/")
+async def login(username: str, password: str, db: Session = Depends(SessionLocal)):
+    user = db.query(UserDB).filter(UserDB.username == username).first()
+    
+    if user and verify_password(password, user.hashed_password):
+        return user
+    
+    raise HTTPException(status_code=401, detail="Invalid credentials")
 
 # Update a specific user by username
 @app.put("/users/{username}", response_model=User)
