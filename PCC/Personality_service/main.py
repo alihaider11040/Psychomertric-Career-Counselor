@@ -1,7 +1,15 @@
 from fastapi import FastAPI
-
+from fastapi.middleware.cors import CORSMiddleware
 app = FastAPI()
+origins = ["*"]  # You can replace "*" with the specific origins you want to allow
 
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=origins,
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 # Define the personality data
 personality_data = {
     "ISTJ": {
@@ -85,10 +93,32 @@ personality_data = {
         "Suitable Career": "Human resources manager, Software developer, University professor, Company CEO or manager, Business analyst, Lawyer, Entrepreneur, and Scientist",
     },
 }
+# Extracting unique professions and their count
+unique_professions = {}
+for personality_type, entry in personality_data.items():
+    careers = [career.strip() for career in entry.get("Suitable Career", "").split(",")]
+    for career in careers:
+        if career not in unique_professions:
+            unique_professions[career] = 1
+        else:
+            unique_professions[career] += 1
 
+print(unique_professions)
+# Order professions by count in ascending order for a given personality type
+def order_professions_by_count(personality_type):
+    if personality_type.upper() in unique_professions:
+        sorted_professions = sorted(unique_professions.items(), key=lambda x: x[1])
+        return dict(sorted_professions)
+    else:
+        return {}
+
+# FastAPI endpoint to get information based on personality type
 @app.get("/get_personality_info/{personality}")
 async def get_personality_info(personality: str):
+    ordered_professions = order_professions_by_count(personality)
+    
     if personality.upper() in personality_data:
-        return personality_data[personality.upper()]
+        return {"personality_info": personality_data[personality.upper()], "ordered_professions": ordered_professions}
     else:
         return {"error": "Personality type not found."}
+

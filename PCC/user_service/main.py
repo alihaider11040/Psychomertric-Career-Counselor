@@ -86,13 +86,6 @@ def read_users(db: Session = Depends(get_db)):
     return db.query(UserDB).all()
 
 # Read a specific user by username
-@app.get("/users/{username}", response_model=User)
-def read_user(username: str, db: Session = Depends(get_db)):
-    user = db.query(UserDB).filter(UserDB.username == username).first()
-    if user is None:
-        raise HTTPException(status_code=404, detail="User not found")
-    return User(username=user.username, email=user.email, user_type=user.user_type)
-
 @app.post("/login/", response_model=LoginResponse)
 async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     user = db.query(UserDB).filter(UserDB.email == login_request.email).first()
