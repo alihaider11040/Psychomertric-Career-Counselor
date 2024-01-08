@@ -47,9 +47,15 @@ class User(BaseModel):
     password: str  # New password field
     user_type: str
 
+class LoginResponse(BaseModel):
+    username: str
+    email: str
+    user_type: str  # Adjust this based on your UserDB model
 # Password hashing
 password_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
-
+class LoginRequest(BaseModel):
+    email: str
+    password: str
 app.add_middleware(
     CORSMiddleware,
     allow_origins=origins,
@@ -86,15 +92,14 @@ def read_user(username: str, db: Session = Depends(get_db)):
         raise HTTPException(status_code=404, detail="User not found")
     return User(username=user.username, email=user.email, user_type=user.user_type)
 
-@app.post("/login/")
-async def login(username: str, password: str, db: Session = Depends(get_db)):
-    user = db.query(UserDB).filter(UserDB.username == username).first()
+@app.post("/login/", response_model=LoginResponse)
+async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
+    user = db.query(UserDB).filter(UserDB.email == login_request.email).first()
     
-    if user and verify_password(password, user.hashed_password):
-        return user
+    if user and verify_password(login_request.password, user.hashed_password):
+        return LoginResponse(username=user.username, email=user.email, user_type=user.user_type)
     
     raise HTTPException(status_code=401, detail="Invalid credentials")
-
 # Update a specific user by username
 @app.put("/users/{username}", response_model=User)
 def update_user(username: str, updated_user: User, db: Session = Depends(get_db)):
