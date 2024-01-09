@@ -2,6 +2,7 @@ from fastapi import FastAPI, HTTPException
 from typing import Dict, List
 from sqlalchemy import create_engine, Column, Integer, String, MetaData, Table
 from sqlalchemy.orm import sessionmaker
+import re
 
 app = FastAPI()
 
@@ -12,7 +13,7 @@ metadata = MetaData()
 results = Table(
     "results",
     metadata,
-    Column("id", Integer, primary_key=True, index=True),
+    Column("id", String, primary_key=True, index=True),
     Column("personality", String),
 )
 
@@ -119,10 +120,16 @@ personality_descriptions = {
 }
 
 
+def extract_questions(questions_text):
+    pattern = re.compile(r"\d+\.\s(.+)")
+    matches = pattern.findall(questions_text)
+    return {str(i + 1): match.strip() for i, match in enumerate(matches)}
+
+
 # Route to retrieve MBTI test questions
 @app.get("/mbit/questions")
 async def get_questions():
-    return {"questions": questions}
+    return {"questions": extract_questions(questions)}
 
 @app.put("/mbit/edit_questions")
 async def edit_questions(updated_questions: str):
@@ -131,7 +138,7 @@ async def edit_questions(updated_questions: str):
     return {"message": "Questions updated successfully"}
 
 @app.post("/mbti/submit")
-async def submit_answers(user_id: int, answers: Dict[str, int]):
+async def submit_answers(email: str, answers: Dict[str, int]):
     if len(answers) != 60:
         raise HTTPException(status_code=400, detail="Invalid number of answers. Expected 60.")
 
@@ -148,7 +155,7 @@ async def submit_answers(user_id: int, answers: Dict[str, int]):
 
     # Save personality in the database
     db = SessionLocal()
-    db.execute(results.insert().values(id=user_id, personality=personality))
+    db.execute(results.insert().values(id=email, personality=personality))
     db.commit()
     db.close()
 
