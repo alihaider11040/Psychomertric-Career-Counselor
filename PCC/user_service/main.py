@@ -18,7 +18,7 @@ class UserDB(Base):
     id = Column(Integer, primary_key=True, index=True)
     username = Column(String, unique=True, index=True)
     email = Column(String)
-    hashed_password = Column(String)  # Store hashed password
+    password = Column(String)  # Store hashed password
     user_type = Column(String)
 
 # Create SQLite engine
@@ -68,10 +68,7 @@ app.add_middleware(
 # Create a new user
 @app.post("/users/", response_model=User)
 def create_user(user: User, db: Session = Depends(get_db)):
-    # Hash the password before storing it in the database
-    hashed_password = password_context.hash(user.password)
-    
-    db_user = UserDB(username=user.username, email=user.email, hashed_password=hashed_password, user_type=user.user_type)
+    db_user = UserDB(username=user.username, email=user.email, password=user.password, user_type=user.user_type)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)
