@@ -143,7 +143,7 @@ async def submit_answers(email: str, answers: Dict[str, int]):
         raise HTTPException(status_code=400, detail="Invalid number of answers. Expected 60.")
 
     # Divide answers into 4 sets
-    sets = [answers[i:i + 15] for i in range(0, 60, 15)]
+    sets = [list(answers.values())[i-1:i+14] for i in range(1, 61, 15)]
 
     # Calculate personality type
     personality = ""
