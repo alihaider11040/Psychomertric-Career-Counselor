@@ -94,6 +94,94 @@ personality_data = {
     },
 }
 # Extracting unique professions and their count
+strengths_and_weaknesses = {
+    "ISTJ": {
+        "Strengths": "Detail-oriented, Realistic, Present-focused, Observant, Logical and practical, Orderly and organized",
+        "Weaknesses": "Judgmental, Subjective, Tends to blame others, Insensitive",
+    },
+    "ISFJ": {
+        "Strengths": "Reliable, Practical, Sensitive and Eye for detail",
+        "Weaknesses": "Dislikes abstract concepts, Avoids confrontation, Dislikes change and Neglects own needs",
+    },
+    "INFJ": {
+        "Strengths": "Sensitive to the needs of others, Reserved, Highly creative and artistic, Focused on the future, Values close, deep relationships, Enjoys thinking about the meaning of life, Idealistic",
+        "Weaknesses": "Can be overly sensitive, Sometimes difficult to get to know, Can have overly high expectations, Stubborn, Dislikes confrontation",
+    },
+    "INTJ": {
+        "Strengths": "Enjoys theoretical and abstract concepts, High expectations, Good at listening, Takes criticism well, Self-confident and hard-working",
+        "Weaknesses": "Can be overly analytical and judgmental, Very perfectionistic, Dislikes talking about emotions, Sometimes seems callous or insensitive",
+    },
+    "ISTP": {
+        "Strengths": "Logical, Learns by experience, Action-oriented, Realistic and practical, Enjoys new things, Self-confident and easygoing",
+        "Weaknesses": "Difficult to get to know, Insensitive, Grows bored easily, Risk-taker, Does not like commitment",
+    },
+    "ISFP": {
+        "Strengths": "Very aware of their environment, Practical, Enjoys hands-on learning, Loyal to values and beliefs",
+        "Weaknesses": "Dislikes abstract, theoretical information, Reserved and quiet, Strong need for personal space, Dislikes arguments and conflict",
+    },
+    "INFP": {
+        "Strengths": "Loyal and devoted, Sensitive to feelings, Caring and interested in others, Works well alone, Value close relationships, Good at seeing 'the big picture'",
+        "Weaknesses": "Can be overly idealistic, Tends to take everything personally, Difficult to get to know, Sometimes loses sight of the little things, Overlooks details",
+    },
+    "INTP": {
+        "Strengths": "Logical and objective, Abstract thinker, Independent, Loyal and affectionate with loved ones",
+        "Weaknesses": "Difficult to get to know, Can be insensitive, Prone to self-doubt, Struggles to follow rules, Has trouble expressing feelings",
+    },
+    "ESTP": {
+        "Strengths": "Gregarious, funny, and energetic, Influential and persuasive, Action-oriented, Adaptable and resourceful, Observant",
+        "Weaknesses": "Impulsive, Competitive, Dramatic at times, Easily bored, Insensitive",
+    },
+    "ESFP": {
+        "Strengths": "Optimistic and gregarious, Enjoys people and socializing, Focused on the present, spontaneous, Practical",
+        "Weaknesses": "Dislikes abstract theories, Becomes bored easily, Does not plan ahead, Impulsive",
+    },
+    "ENFP": {
+        "Strengths": "Warm and enthusiastic, Empathetic and caring, Strong people skills, Strong communication skills, Fun and spontaneous, Highly Creative",
+        "Weaknesses": "Needs approval from others, Disorganized, Tends to get stressed out easily, Can be overly emotional, Overthinks, Struggles to follow rules",
+    },
+    "ENTP": {
+        "Strengths": "Innovative, Creative, Great conversationalist, Enjoys debating, Values knowledge",
+        "Weaknesses": "Can be argumentative, Dislikes routines and schedules, Does not like to be controlled, Unfocused, Insensitive",
+    },
+    "ESTJ": {
+        "Strengths": "Practical and realistic, Dependable, Self-confident, Hard-working, Traditional, Strong leadership skills",
+        "Weaknesses": "Insensitive, Inflexible, Not good at expressing feelings, Argumentative, Bossy",
+    },
+    "ESFJ": {
+        "Strengths": "Kind and loyal, Outgoing, Organized, Practical and dependable, Enjoy helping others, Conscientious",
+        "Weaknesses": "Needy, Approval-seeking, Sensitive to criticism, Dislike change, Intolerant, Controlling",
+    },
+    "ENFJ": {
+        "Strengths": "Outgoing and warm-hearted, Empathetic, Wide social circle, Encouraging, Organized, Affectionate, Persuasive",
+        "Weaknesses": "Approval-seeking, Overly sensitive, Indecisive, Self-sacrificing, Rigid and uncompromising, Overprotective, Manipulative",
+    },
+    "ENTJ": {
+        "Strengths": "Strong leadership skills, Self-assured, Well-organized, Good at making decisions, Assertive and outspoken, Strong communication skills",
+        "Weaknesses": "Impatient, Stubborn, Insensitive, Aggressive, Intolerant",
+    },
+}
+
+
+
+merged_data = {}
+
+for personality_type, details in personality_data.items():
+    strengths = weaknesses = ""
+    
+    # Retrieve strengths and weaknesses if available
+    if personality_type in strengths_and_weaknesses:
+        strengths = strengths_and_weaknesses[personality_type]["Strengths"]
+        weaknesses = strengths_and_weaknesses[personality_type]["Weaknesses"]
+
+    merged_data[personality_type] = {
+        "Personality Attributes": details["Personality Attributes"],
+        "Traits": details["Traits"],
+        "Suitable Career": details["Suitable Career"],
+        "Strengths": strengths,
+        "Weaknesses": weaknesses,
+    }
+
+
 unique_professions = {}
 for personality_type, entry in personality_data.items():
     careers = [career.strip() for career in entry.get("Suitable Career", "").split(",")]
@@ -117,8 +205,8 @@ def order_professions_by_count(personality_type):
 async def get_personality_info(personality: str):
     ordered_professions = order_professions_by_count(personality)
     
-    if personality.upper() in personality_data:
-        return {"personality_info": personality_data[personality.upper()], "ordered_professions": ordered_professions}
+    if personality.upper() in merged_data:
+        return {"personality_info": merged_data[personality.upper()], "ordered_professions": ordered_professions}
     else:
         return {"error": "Personality type not found."}
 
