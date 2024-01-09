@@ -130,13 +130,10 @@ personality_descriptions = {
 }
 
 
-def extract_questions(questions_text):
-    pattern = re.compile(r"\d+\.\s(.+)")
-    matches = pattern.findall(questions_text)
-    return {str(i + 1): match.strip() for i, match in enumerate(matches)}
+def extract_questions(questions_string: str) -> List[str]:
+    questions_list = questions_string.strip().split("\n")
+    return [question[3:].strip() for question in questions_list]
 
-
-# Route to retrieve MBTI test questions
 @app.get("/mbit/questions")
 async def get_questions():
     return extract_questions(questions)
