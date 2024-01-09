@@ -23,7 +23,7 @@ metadata = MetaData()
 results = Table(
     "results",
     metadata,
-    Column("id", String, primary_key=True, index=True),
+    Column("id", String, index=True),
     Column("personality", String),
 )
 
