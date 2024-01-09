@@ -93,8 +93,8 @@ async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     raise HTTPException(status_code=401, detail="Invalid credentials")
 # Update a specific user by username
 @app.put("/users/", response_model=LoginResponse)
-def update_user(email: str, updated_user: User, db: Session = Depends(get_db)):
-    db_user = db.query(UserDB).filter(UserDB.email == email).first()
+def update_user(updated_user: User, db: Session = Depends(get_db)):
+    db_user = db.query(UserDB).filter(UserDB.email == User.email).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
