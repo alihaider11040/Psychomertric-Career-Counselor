@@ -4,6 +4,8 @@ from typing import Dict, List
 from sqlalchemy import create_engine, Column, Integer, String, MetaData, Table
 from sqlalchemy.orm import sessionmaker
 import re
+from fastapi import Depends
+
 
 app = FastAPI()
 origins = ["*"]  # You can replace "*" with the specific origins you want to allow
@@ -129,7 +131,12 @@ personality_descriptions = {
     "ESFJ": "The Consul - Supportive, sociable, and responsible. ESFJs are dedicated to maintaining social harmony and helping others. They are often seen as reliable and caring individuals."
 }
 
-
+def get_db():
+    db = SessionLocal()
+    try:
+        yield db
+    finally:
+        db.close()
 def extract_questions(questions_string: str) -> List[str]:
     questions_list = questions_string.strip().split("\n")
     return [question[3:].strip() for question in questions_list]
@@ -182,3 +189,16 @@ async def get_description(personality_type: str):
 
     description = personality_descriptions[personality_type]
     return {"personality_type": personality_type, "description": description}
+# Function to get personality from the database
+def get_personality(email: str, db: SessionLocal):
+    result = db.query(results).filter(results.c.id == email).first()
+    if result:
+        return result.personality
+    else:
+        raise HTTPException(status_code=404, detail="Personality not found for the given email")
+
+# API endpoint to get personality based on email
+@app.get("/get_personality/{email}")
+def read_personality(email: str, db: SessionLocal = Depends(get_db)):
+    personality = get_personality(email, db)
+    return {"email": email, "personality": personality}
