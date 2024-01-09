@@ -147,15 +147,15 @@ def is_valid_answers(answers: Dict[str, int]) -> bool:
     return len(answers) == 60 and all(isinstance(val, int) for val in answers.values())
 
 @app.post("/mbti/submit")
-async def submit_answers(email: str, answers: Dict[str, int]):
-    if not is_valid_answers(answers):
-        raise HTTPException(status_code=400, detail="Invalid answers format. Expected 60 integer values.")
+async def submit_answers(email: str, answers: Dict[str, str]):
+    if len(answers) != 60:
+        raise HTTPException(status_code=400, detail="Invalid number of answers. Expected 60.")
 
-    # Convert values to integers
-    int_answers = {int(key): int(value) for key, value in answers.items()}
+    # Convert string values to integers
+    answers = {int(key): int(value) for key, value in answers.items()}
 
     # Divide answers into 4 sets
-    sets = [list(int_answers.values())[i-1:i+14] for i in range(1, 61, 15)]
+    sets = [list(answers.values())[i-1:i+14] for i in range(1, 61, 15)]
 
     # Calculate personality type
     personality = ""
