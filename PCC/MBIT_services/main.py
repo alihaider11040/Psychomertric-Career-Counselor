@@ -139,7 +139,7 @@ def extract_questions(questions_text):
 # Route to retrieve MBTI test questions
 @app.get("/mbit/questions")
 async def get_questions():
-    return {"questions": extract_questions(questions)}
+    return extract_questions(questions)
 
 @app.put("/mbit/edit_questions")
 async def edit_questions(updated_questions: str):
