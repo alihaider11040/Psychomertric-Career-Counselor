@@ -75,9 +75,6 @@ def create_user(user: User, db: Session = Depends(get_db)):
     return user
 
 # Function to verify the provided password against the stored hashed password
-def verify_password(plain_password, hashed_password):
-    return password_context.verify(plain_password, hashed_password)
-# Read all users
 @app.get("/users/", response_model=List[User])
 def read_users(db: Session = Depends(get_db)):
     return db.query(UserDB).all()
@@ -92,22 +89,26 @@ async def login(login_request: LoginRequest, db: Session = Depends(get_db)):
     
     raise HTTPException(status_code=401, detail="Invalid credentials")
 # Update a specific user by username
-@app.put("/users/", response_model=LoginResponse)
+
+@app.put("/users/", response_model=User)
 def update_user(updated_user: User, db: Session = Depends(get_db)):
-    db_user = db.query(UserDB).filter(UserDB.email == User.email).first()
+    db_user = db.query(UserDB).filter(UserDB.email == updated_user.email).first()
     if db_user is None:
         raise HTTPException(status_code=404, detail="User not found")
 
     # Update fields if provided
     if updated_user.email:
         db_user.email = updated_user.email
+    if updated_user.username:
+        db_user.username = updated_user.username
     if updated_user.user_type:
         db_user.user_type = updated_user.user_type
 
     db.commit()
     db.refresh(db_user)
+    
+    # Return the updated user
     return updated_user
-
 # Delete a specific user by username
 @app.delete("/users/{username}", response_model=User)
 def delete_user(username: str, db: Session = Depends(get_db)):
