@@ -174,9 +174,9 @@ for personality_type, details in personality_data.items():
         weaknesses = strengths_and_weaknesses[personality_type]["Weaknesses"]
 
     merged_data[personality_type] = {
-        "Personality Attributes": details["Personality Attributes"],
+        "PersonalityAttributes": details["Personality Attributes"],
         "Traits": details["Traits"],
-        "Suitable Career": details["Suitable Career"],
+        "Career": details["Suitable Career"],
         "Strengths": strengths,
         "Weaknesses": weaknesses,
     }
